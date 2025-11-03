@@ -20,6 +20,7 @@ namespace RestaurantApp.Data
 
             modelBuilder.Entity<Dish>(entity =>
             {
+                
                 entity.ToTable("Dishes");
                 entity.HasIndex(e => e.Name);
             });

@@ -1,65 +1,68 @@
 ﻿@model IEnumerable<RestaurantApp.Models.Dish>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Menu Restauracji";
 }
 
-<h1>Index</h1>
+<h1 class="mb-4 text-center">🍽️ Menu Restauracji</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Category)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImagePath)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Category)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImagePath)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="d-flex justify-content-between mb-4">
+    <a asp-action="Create" class="btn btn-success px-4">+ Dodaj nowe danie</a>
+</div>
+
+<div class="d-flex gap-2 mb-4 flex-wrap">
+    <a asp-action="Index" class="btn btn-outline-primary">Wszystkie</a>
+    <a asp-action="Index" asp-route-category="1" class="btn btn-outline-primary">Śniadania</a>
+    <a asp-action="Index" asp-route-category="2" class="btn btn-outline-primary">Obiady</a>
+    <a asp-action="Index" asp-route-category="3" class="btn btn-outline-primary">Kolacje</a>
+</div>
+
+<div class="row g-4">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100 dish-card">
+
+                @if (!string.IsNullOrEmpty(item.ImagePath))
+                {
+                    <img src="@item.ImagePath" class="card-img-top rounded-top"
+                         alt="@item.Name" style="height: 220px; object-fit: cover;">
+                }
+                else
+                {
+                    <img src="~/images/no-image.jpg" class="card-img-top rounded-top"
+                         alt="Brak zdjęcia" style="height: 220px; object-fit: cover;">
+                }
+
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">@item.Name</h5>
+                    <span class="badge bg-info mb-2">@item.Category</span>
+                    <p class="card-text text-muted">@item.Description</p>
+
+                    <h5 class="text-success fw-bold mt-3">
+                        @item.Price.ToString("C")
+                    </h5>
+                </div>
+
+                <div class="card-footer bg-white border-0 d-flex justify-content-between">
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">Szczegóły</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">Edytuj</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">Usuń</a>
+                </div>
+
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .dish-card {
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        border-radius: 12px;
+    }
+
+        .dish-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+</style>

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RestaurantApp.Data;
 using RestaurantApp.Models;
@@ -13,16 +8,25 @@ namespace RestaurantApp.Controllers
     public class DishesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public DishesController(ApplicationDbContext context)
+        public DishesController(ApplicationDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
         // GET: Dishes
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(MealType? category)
         {
-            return View(await _context.Dishes.ToListAsync());
+            var dishes = _context.Dishes.AsQueryable();
+
+            if (category.HasValue)
+            {
+                dishes = dishes.Where(d => d.Category == category.Value);
+            }
+
+            return View(await dishes.ToListAsync());
         }
 
         // GET: Dishes/Details/5
@@ -35,6 +39,7 @@ namespace RestaurantApp.Controllers
 
             var dish = await _context.Dishes
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (dish == null)
             {
                 return NotFound();
@@ -50,18 +55,34 @@ namespace RestaurantApp.Controllers
         }
 
         // POST: Dishes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,Price,Category,ImagePath,CreatedAt")] Dish dish)
+        public async Task<IActionResult> Create([Bind("Name,Description,Price,Category")] Dish dish, IFormFile? imageFile)
         {
             if (ModelState.IsValid)
             {
+                // Upload zdjęcia
+                if (imageFile != null && imageFile.Length > 0)
+                {
+                    var uploadsFolder = Path.Combine(_environment.WebRootPath, "images", "dishes");
+                    Directory.CreateDirectory(uploadsFolder);
+
+                    var uniqueFileName = Guid.NewGuid().ToString() + "_" + imageFile.FileName;
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await imageFile.CopyToAsync(fileStream);
+                    }
+
+                    dish.ImagePath = "/images/dishes/" + uniqueFileName;
+                }
+
                 _context.Add(dish);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             return View(dish);
         }
 
@@ -78,15 +99,14 @@ namespace RestaurantApp.Controllers
             {
                 return NotFound();
             }
+
             return View(dish);
         }
 
         // POST: Dishes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Price,Category,ImagePath,CreatedAt")] Dish dish)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Price,Category,ImagePath")] Dish dish, IFormFile? imageFile)
         {
             if (id != dish.Id)
             {
@@ -97,6 +117,34 @@ namespace RestaurantApp.Controllers
             {
                 try
                 {
+                    // Jeśli użytkownik dodał nowe zdjęcie — podmień
+                    if (imageFile != null && imageFile.Length > 0)
+                    {
+                        // Usuń stare zdjęcie
+                        if (!string.IsNullOrEmpty(dish.ImagePath))
+                        {
+                            var oldImagePath = Path.Combine(_environment.WebRootPath, dish.ImagePath.TrimStart('/'));
+                            if (System.IO.File.Exists(oldImagePath))
+                            {
+                                System.IO.File.Delete(oldImagePath);
+                            }
+                        }
+
+                        // Zapisz nowe zdjęcie
+                        var uploadsFolder = Path.Combine(_environment.WebRootPath, "images", "dishes");
+                        Directory.CreateDirectory(uploadsFolder);
+
+                        var uniqueFileName = Guid.NewGuid().ToString() + "_" + imageFile.FileName;
+                        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await imageFile.CopyToAsync(fileStream);
+                        }
+
+                        dish.ImagePath = "/images/dishes/" + uniqueFileName;
+                    }
+
                     _context.Update(dish);
                     await _context.SaveChangesAsync();
                 }
@@ -111,8 +159,10 @@ namespace RestaurantApp.Controllers
                         throw;
                     }
                 }
+
                 return RedirectToAction(nameof(Index));
             }
+
             return View(dish);
         }
 
@@ -126,6 +176,7 @@ namespace RestaurantApp.Controllers
 
             var dish = await _context.Dishes
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (dish == null)
             {
                 return NotFound();
@@ -140,8 +191,20 @@ namespace RestaurantApp.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var dish = await _context.Dishes.FindAsync(id);
+
             if (dish != null)
             {
+                // Usuń zdjęcie fizycznie z folderu
+                if (!string.IsNullOrEmpty(dish.ImagePath))
+                {
+                    var imagePath = Path.Combine(_environment.WebRootPath, dish.ImagePath.TrimStart('/'));
+
+                    if (System.IO.File.Exists(imagePath))
+                    {
+                        System.IO.File.Delete(imagePath);
+                    }
+                }
+
                 _context.Dishes.Remove(dish);
             }
 

@@ -1,59 +1,71 @@
 ﻿@model RestaurantApp.Models.Dish
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edytuj danie";
 }
 
-<h1>Edit</h1>
-
-<h4>Dish</h4>
+<h1>Edytuj danie</h1>
 <hr />
+
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
+    <div class="col-md-6">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
+            <input type="hidden" asp-for="ImagePath" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Name" class="control-label">Nazwa dania</label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Description" class="control-label">Opis</label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Price" class="control-label">Cena (PLN)</label>
+                <input asp-for="Price" class="form-control" type="number" step="0.01" />
                 <span asp-validation-for="Price" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Category" class="control-label"></label>
-                <select asp-for="Category" class="form-control"></select>
+
+            <div class="form-group mb-3">
+                <label asp-for="Category" class="control-label">Kategoria</label>
+                <select asp-for="Category" class="form-control"
+                        asp-items="Html.GetEnumSelectList<RestaurantApp.Models.MealType>()">
+                </select>
                 <span asp-validation-for="Category" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="ImagePath" class="control-label"></label>
-                <input asp-for="ImagePath" class="form-control" />
-                <span asp-validation-for="ImagePath" class="text-danger"></span>
+
+            @if (!string.IsNullOrEmpty(Model.ImagePath))
+            {
+                <div class="form-group mb-3">
+                    <label>Obecne zdjęcie:</label><br />
+                    <img src="@Model.ImagePath" alt="@Model.Name" style="max-width: 200px;" />
+                </div>
+            }
+
+            <div class="form-group mb-3">
+                <label class="control-label">Zmień zdjęcie</label>
+                <input type="file" name="imageFile" class="form-control" accept="image/*" />
             </div>
+
             <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
+                <input type="submit" value="Zapisz zmiany" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Powrót do listy</a>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
+
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

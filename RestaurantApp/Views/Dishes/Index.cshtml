@@ -5,6 +5,19 @@
 }
 
 <h1 class="mb-4 text-center">🍽️ Menu Restauracji</h1>
+<form asp-action="Index" method="get">
+    <div class="input-group mb-3">
+        <input type="text"
+               name="searchString"
+               class="form-control"
+               placeholder="Szukaj dania..."
+               value="@Context.Request.Query["searchString"]" />
+
+        <input type="hidden" name="category" value="@Context.Request.Query["category"]" />
+
+        <button class="btn btn-outline-secondary" type="submit">Szukaj</button>
+    </div>
+</form>
 
 <div class="d-flex justify-content-between mb-4">
     <a asp-action="Create" class="btn btn-success px-4">+ Dodaj nowe danie</a>
@@ -16,6 +29,7 @@
     <a asp-action="Index" asp-route-category="2" class="btn btn-outline-primary">Obiady</a>
     <a asp-action="Index" asp-route-category="3" class="btn btn-outline-primary">Kolacje</a>
 </div>
+
 
 <div class="row g-4">
     @foreach (var item in Model)

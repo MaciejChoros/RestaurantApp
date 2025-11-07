@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RestaurantApp.Data;
 using RestaurantApp.Models;
@@ -16,10 +17,21 @@ namespace RestaurantApp.Controllers
             _environment = environment;
         }
 
+
         // GET: Dishes
-        public async Task<IActionResult> Index(MealType? category)
+        public async Task<IActionResult> Index(string searchString, MealType? category)
         {
             var dishes = _context.Dishes.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                var search = searchString.ToLower();
+
+                dishes = dishes.Where(d =>
+                    d.Name.ToLower().Contains(search) ||
+                    d.Description.ToLower().Contains(search)
+                );
+            }
 
             if (category.HasValue)
             {
@@ -28,6 +40,7 @@ namespace RestaurantApp.Controllers
 
             return View(await dishes.ToListAsync());
         }
+
 
         // GET: Dishes/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -49,12 +62,14 @@ namespace RestaurantApp.Controllers
         }
 
         // GET: Dishes/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
         }
 
         // POST: Dishes/Create
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name,Description,Price,Category")] Dish dish, IFormFile? imageFile)
@@ -87,6 +102,7 @@ namespace RestaurantApp.Controllers
         }
 
         // GET: Dishes/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -104,6 +120,7 @@ namespace RestaurantApp.Controllers
         }
 
         // POST: Dishes/Edit/5
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Price,Category,ImagePath")] Dish dish, IFormFile? imageFile)
@@ -167,6 +184,7 @@ namespace RestaurantApp.Controllers
         }
 
         // GET: Dishes/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -186,6 +204,7 @@ namespace RestaurantApp.Controllers
         }
 
         // POST: Dishes/Delete/5
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -216,5 +235,7 @@ namespace RestaurantApp.Controllers
         {
             return _context.Dishes.Any(e => e.Id == id);
         }
+
+
     }
 }

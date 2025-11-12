@@ -51,7 +51,8 @@ namespace RestaurantApp.Controllers
             }
 
             var dish = await _context.Dishes
-                .FirstOrDefaultAsync(m => m.Id == id);
+            .Include(d => d.Ratings)
+            .FirstOrDefaultAsync(m => m.Id == id);
 
             if (dish == null)
             {
@@ -230,7 +231,37 @@ namespace RestaurantApp.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Rate(int dishId, int stars, string? comment)
+        {
+            if (stars < 1 || stars > 5)
+            {
+                ModelState.AddModelError("", "Nieprawidłowa liczba gwiazdek.");
+            }
 
+            var dish = await _context.Dishes
+                .Include(d => d.Ratings)
+                .FirstOrDefaultAsync(d => d.Id == dishId);
+
+            if (dish == null)
+            {
+                return NotFound();
+            }
+
+            var rating = new Rating
+            {
+                DishId = dishId,
+                Stars = stars,
+                Comment = comment,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Ratings.Add(rating);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Details), new { id = dishId });
+        }
         private bool DishExists(int id)
         {
             return _context.Dishes.Any(e => e.Id == id);

@@ -14,7 +14,7 @@ namespace RestaurantApp.Data
 
 
         public DbSet<Dish> Dishes { get; set; }
-
+        public DbSet<Rating> Ratings { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

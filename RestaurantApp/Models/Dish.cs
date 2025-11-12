@@ -24,8 +24,13 @@ namespace RestaurantApp.Models
         public MealType Category { get; set; }
 
         [StringLength(255)]
-        public string? ImagePath { get; set; } 
+        public string? ImagePath { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public ICollection<Rating>? Ratings { get; set; }
+        [NotMapped]
+        public double AverageRating => Ratings?.Any() == true
+        ? Ratings.Average(r => r.Stars)
+        : 0;
     }
     public enum MealType
     {
@@ -33,4 +38,5 @@ namespace RestaurantApp.Models
         Obiad = 2,
         Kolacja = 3
     }
+
 }

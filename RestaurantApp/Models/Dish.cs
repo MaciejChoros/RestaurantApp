@@ -31,6 +31,17 @@ namespace RestaurantApp.Models
         public double AverageRating => Ratings?.Any() == true
         ? Ratings.Average(r => r.Stars)
         : 0;
+
+        public class DishImage
+        {
+            [Key]
+            public int Id { get; set; }
+            public int DishId { get; set; }
+            public Dish Dish { get; set; }
+            [StringLength(255)]
+            public string ImagePath { get; set; }
+            public bool IsMainImage { get; set; } = false;
+        }
     }
     public enum MealType
     {

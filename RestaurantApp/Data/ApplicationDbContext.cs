@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using RestaurantApp.Models;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using static RestaurantApp.Models.Dish;
 
 
 namespace RestaurantApp.Data
@@ -15,6 +16,7 @@ namespace RestaurantApp.Data
 
         public DbSet<Dish> Dishes { get; set; }
         public DbSet<Rating> Ratings { get; set; }
+        public DbSet<DishImage> DishImages { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

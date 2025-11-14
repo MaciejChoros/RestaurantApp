@@ -2,11 +2,8 @@
 
 @{
     ViewData["Title"] = "Dodaj danie";
+}
 
-}
-@{
-    
-}
 <h1 class="mb-4 text-center">🍽️ Dodaj nowe danie</h1>
 
 <div class="row justify-content-center">
@@ -46,9 +43,9 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label fw-bold">Zdjęcie dania</label>
-                        <input type="file" name="imageFile" class="form-control" accept="image/*" />
-                        <small class="text-muted">Możesz przesłać plik JPG, PNG lub WebP.</small>
+                        <label class="form-label fw-bold">Zdjęcia dania (galeria)</label>
+                        <input type="file" name="images" class="form-control" accept="image/*" multiple />
+                        <small class="text-muted">Możesz przesłać wiele zdjęć naraz (JPG, PNG, WebP).</small>
                     </div>
 
                     <div class="d-flex justify-content-between mt-4">
@@ -63,8 +60,3 @@
     </div>
 </div>
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}

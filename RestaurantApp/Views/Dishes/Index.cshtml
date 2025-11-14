@@ -5,6 +5,7 @@
 }
 
 <h1 class="mb-4 text-center">🍽️ Menu Restauracji</h1>
+
 <form asp-action="Index" method="get">
     <div class="input-group mb-3">
         <input type="text"
@@ -30,23 +31,23 @@
     <a asp-action="Index" asp-route-category="3" class="btn btn-outline-primary">Kolacje</a>
 </div>
 
-
 <div class="row g-4">
     @foreach (var item in Model)
     {
         <div class="col-md-4">
             <div class="card shadow-sm border-0 h-100 dish-card">
 
-                @if (!string.IsNullOrEmpty(item.ImagePath))
-                {
-                    <img src="@item.ImagePath" class="card-img-top rounded-top"
-                         alt="@item.Name" style="height: 220px; object-fit: cover;">
+                @{
+                    // Pobierz główne zdjęcie lub ImagePath lub placeholder
+                    var mainImage = item.DishImages?.FirstOrDefault(di => di.IsMainImage)?.ImagePath
+                    ?? item.ImagePath
+                    ?? "~/images/no-image.jpg";
                 }
-                else
-                {
-                    <img src="~/images/no-image.jpg" class="card-img-top rounded-top"
-                         alt="Brak zdjęcia" style="height: 220px; object-fit: cover;">
-                }
+
+                <img src="@mainImage"
+                     class="card-img-top rounded-top"
+                     alt="@item.Name"
+                     style="height: 220px; object-fit: cover;">
 
                 <div class="card-body">
                     <h5 class="card-title fw-bold">@item.Name</h5>
@@ -62,8 +63,8 @@
                     <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">Szczegóły</a>
                     @if (User.IsInRole("Admin"))
                     {
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">Edytuj</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">Usuń</a>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">Edytuj</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">Usuń</a>
                     }
                 </div>
 

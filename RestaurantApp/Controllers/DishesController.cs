@@ -21,7 +21,9 @@ namespace RestaurantApp.Controllers
         // GET: Dishes
         public async Task<IActionResult> Index(string searchString, MealType? category)
         {
-            var dishes = _context.Dishes.AsQueryable();
+            var dishes = _context.Dishes
+            .Include(d => d.DishImages)
+            .AsQueryable();
 
             if (!string.IsNullOrEmpty(searchString))
             {
@@ -67,7 +69,6 @@ namespace RestaurantApp.Controllers
 
                 if (imageFiles != null && imageFiles.Count > 0)
                 {
-                    dish.ImagePath = ""; // opcjonalnie pierwsze zdjęcie jako główne
                     dish.DishImages = new List<DishImage>();
 
                     foreach (var file in imageFiles)
@@ -92,6 +93,12 @@ namespace RestaurantApp.Controllers
                                 IsMainImage = dish.DishImages.Count == 0
                             });
                         }
+                    }
+                    if (dish.DishImages.Any() && !dish.DishImages.Any(d => d.IsMainImage))
+                    {
+                        var main = dish.DishImages.First();
+                        main.IsMainImage = true;
+                        dish.ImagePath = main.ImagePath;
                     }
                 }
 

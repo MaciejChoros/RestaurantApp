@@ -2,40 +2,91 @@
     ViewData["Title"] = "Logowanie";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-4">
+<style>
+    /* Tło gradientowe dla strony */
+    body {
+        background: linear-gradient(135deg, #4a90e2, #50c9c3);
+        min-height: 100vh;
+    }
 
-            <div class="card shadow-sm">
-                <div class="card-header text-center bg-primary text-white">
-                    <h4>Logowanie administratora</h4>
-                </div>
+    /* Karta logowania z efektem unoszenia */
+    .login-card {
+        border-radius: 15px;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
 
-                <div class="card-body">
-                    <form method="post">
-                        <div class="mb-3">
-                            <label class="form-label">Login</label>
-                            <input type="text" name="username" class="form-control" required />
-                        </div>
+        .login-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
 
-                        <div class="mb-3">
-                            <label class="form-label">Hasło</label>
-                            <input type="password" name="password" class="form-control" required />
-                        </div>
+    /* Ikony inputów */
+    .input-group-text {
+        background-color: #f1f1f1;
+        border-right: none;
+    }
 
-                        <button type="submit" class="btn btn-primary w-100">Zaloguj</button>
+    .form-control {
+        border-left: none;
+    }
+</style>
 
-                        <div class="text-danger mt-3">
-                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                            {
-                                <p>@error.ErrorMessage</p>
-                            }
-                        </div>
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="col-md-4">
 
-                    </form>
-                </div>
+        @* Karta logowania *@
+        <div class="card shadow login-card">
+
+            @* Nagłówek z gradientem *@
+            <div class="card-header text-center text-white"
+                 style="background: linear-gradient(90deg, #007bff, #00c6ff); border-radius: 15px 15px 0 0;">
+                <h4 class="my-2">🔐 Logowanie administratora</h4>
             </div>
 
+            <div class="card-body p-4">
+
+                @* Formularz logowania *@
+                <form method="post">
+
+                    @* Pole loginu z ikonką *@
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Login</label>
+
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-person-fill"></i>
+                            </span>
+                            <input type="text" name="username" class="form-control" placeholder="Wpisz login" required />
+                        </div>
+                    </div>
+
+                    @* Pole hasła z ikonką *@
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Hasło</label>
+
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-lock-fill"></i>
+                            </span>
+                            <input type="password" name="password" class="form-control" placeholder="Wpisz hasło" required />
+                        </div>
+                    </div>
+
+                    @* Przycisk logowania *@
+                    <button type="submit" class="btn btn-primary w-100 py-2 mt-2 fw-semibold">
+                        Zaloguj się
+                    </button>
+
+                    @* Wyświetlanie błędów ModelState *@
+                    <div class="text-danger mt-3 text-center">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <p>@error.ErrorMessage</p>
+                        }
+                    </div>
+
+                </form>
+            </div>
         </div>
     </div>
 </div>

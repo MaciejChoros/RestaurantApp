@@ -4,59 +4,116 @@
     ViewData["Title"] = "Dodaj danie";
 }
 
-<h1 class="mb-4 text-center">🍽️ Dodaj nowe danie</h1>
+<style>
+    /* Subtelne tło strony */
+    body {
+        background: #f2f6fc;
+    }
+
+    /* Karta z animacją unoszenia */
+    .dish-card {
+        border-radius: 15px;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+        .dish-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,.15);
+        }
+
+    /* Ikonki w labelach */
+    .label-icon {
+        margin-right: 6px;
+        opacity: .8;
+    }
+</style>
+
+<h1 class="mb-4 text-center fw-bold">🍽️ Dodaj nowe danie</h1>
 
 <div class="row justify-content-center">
     <div class="col-md-7">
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
 
+        @* Główna karta *@
+        <div class="card shadow dish-card border-0">
+            <div class="card-header text-white"
+                 style="background: linear-gradient(90deg, #007bff, #00c6ff); border-radius: 15px 15px 0 0;">
+                <h4 class="my-2 text-center">Nowe danie w menu</h4>
+            </div>
+
+            <div class="card-body p-4">
+
+                @* Formularz tworzenia dania *@
                 <form asp-action="Create" method="post" enctype="multipart/form-data">
 
+                    @* Wyświetlanie błędów modelu *@
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
+                    @* Nazwa dania *@
                     <div class="mb-3">
-                        <label asp-for="Name" class="form-label fw-bold">Nazwa dania</label>
-                        <input asp-for="Name" class="form-control form-control-lg" />
+                        <label asp-for="Name" class="form-label fw-semibold">
+                            <i class="bi bi-tag-fill label-icon"></i> Nazwa dania
+                        </label>
+                        <input asp-for="Name" class="form-control form-control-lg" placeholder="np. Rosół królewski" />
                         <span asp-validation-for="Name" class="text-danger"></span>
                     </div>
 
+                    @* Opis *@
                     <div class="mb-3">
-                        <label asp-for="Description" class="form-label fw-bold">Opis</label>
-                        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                        <label asp-for="Description" class="form-label fw-semibold">
+                            <i class="bi bi-card-text label-icon"></i> Opis dania
+                        </label>
+                        <textarea asp-for="Description" class="form-control" rows="4" placeholder="Krótki opis potrawy..."></textarea>
                         <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
 
+                    @* Cena *@
                     <div class="mb-3">
-                        <label asp-for="Price" class="form-label fw-bold">Cena (PLN)</label>
-                        <input asp-for="Price" class="form-control" type="number" step="0.01" />
+                        <label asp-for="Price" class="form-label fw-semibold">
+                            <i class="bi bi-cash-coin label-icon"></i> Cena (PLN)
+                        </label>
+                        <input asp-for="Price" class="form-control" type="number" step="0.01" placeholder="np. 24.50" />
                         <span asp-validation-for="Price" class="text-danger"></span>
                     </div>
 
+                    @* Kategoria (enum) *@
                     <div class="mb-3">
-                        <label asp-for="Category" class="form-label fw-bold">Kategoria</label>
-                        <select asp-for="Category" class="form-select"
+                        <label asp-for="Category" class="form-label fw-semibold">
+                            <i class="bi bi-grid-3x3-gap-fill label-icon"></i> Kategoria
+                        </label>
+
+                        <select asp-for="Category" class="form-select form-select-lg"
                                 asp-items="Html.GetEnumSelectList<RestaurantApp.Models.MealType>()">
                             <option value="">-- Wybierz kategorię --</option>
                         </select>
+
                         <span asp-validation-for="Category" class="text-danger"></span>
                     </div>
 
+                    @* Zdjęcia dania *@
                     <div class="mb-4">
-                        <label class="form-label fw-bold">Zdjęcia dania (galeria)</label>
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-images label-icon"></i> Zdjęcia dania (galeria)
+                        </label>
+
                         <input type="file" name="imageFiles" class="form-control" accept="image/*" multiple />
-                        <small class="text-muted">Możesz przesłać wiele zdjęć naraz (JPG, PNG, WebP).</small>
+                        <small class="text-muted">Możesz przesłać wiele zdjęć (JPG, PNG, WebP).</small>
                     </div>
 
+                    @* Przyciski *@
                     <div class="d-flex justify-content-between mt-4">
-                        <a asp-action="Index" class="btn btn-secondary px-4">Powrót</a>
-                        <button type="submit" class="btn btn-primary px-4">Zapisz</button>
+                        <a asp-action="Index" class="btn btn-secondary px-4">
+                            <i class="bi bi-arrow-left-circle"></i> Powrót
+                        </a>
+
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check2-circle"></i> Zapisz danie
+                        </button>
                     </div>
 
                 </form>
 
             </div>
         </div>
+
     </div>
 </div>
-

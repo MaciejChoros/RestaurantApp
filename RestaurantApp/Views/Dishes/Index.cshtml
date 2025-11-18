@@ -2,85 +2,127 @@
 
 @{
     ViewData["Title"] = "Menu Restauracji";
+
+    // Kolory kategorii dla polskiego ENUM MealType
+    string GetCategoryBadgeClass(RestaurantApp.Models.MealType category) =>
+        category switch
+        {
+            RestaurantApp.Models.MealType.Śniadanie => "bg-warning text-dark",   // żółty
+            RestaurantApp.Models.MealType.Obiad => "bg-success text-white",  // zielony
+            RestaurantApp.Models.MealType.Kolacja => "bg-primary text-white",  // niebieski
+            _ => "bg-secondary text-white"
+        };
 }
 
-<h1 class="mb-4 text-center">🍽️ Menu Restauracji</h1>
+<div class="container mt-4">
 
-<form asp-action="Index" method="get">
-    <div class="input-group mb-3">
-        <input type="text"
-               name="searchString"
-               class="form-control"
-               placeholder="Szukaj dania..."
-               value="@Context.Request.Query["searchString"]" />
+    <h1 class="text-center mb-5 display-5 fw-bold">
+        🍽️ Menu Restauracji
+    </h1>
 
-        <input type="hidden" name="category" value="@Context.Request.Query["category"]" />
+    <!-- Wyszukiwarka -->
+    <form asp-action="Index" method="get" class="mb-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="input-group shadow-sm">
+                    <input type="text"
+                           name="searchString"
+                           class="form-control"
+                           placeholder="Szukaj dania..."
+                           value="@Context.Request.Query["searchString"]" />
 
-        <button class="btn btn-outline-secondary" type="submit">Szukaj</button>
-    </div>
-</form>
+                    <input type="hidden" name="category" value="@Context.Request.Query["category"]" />
 
-<div class="d-flex justify-content-between mb-4">
-    <a asp-action="Create" class="btn btn-success px-4">+ Dodaj nowe danie</a>
-</div>
-
-<div class="d-flex gap-2 mb-4 flex-wrap">
-    <a asp-action="Index" class="btn btn-outline-primary">Wszystkie</a>
-    <a asp-action="Index" asp-route-category="1" class="btn btn-outline-primary">Śniadania</a>
-    <a asp-action="Index" asp-route-category="2" class="btn btn-outline-primary">Obiady</a>
-    <a asp-action="Index" asp-route-category="3" class="btn btn-outline-primary">Kolacje</a>
-</div>
-
-<div class="row g-4">
-    @foreach (var item in Model)
-    {
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 h-100 dish-card">
-
-                @{
-                    // Pobierz główne zdjęcie lub ImagePath lub placeholder
-                    var mainImage = item.DishImages?.FirstOrDefault(di => di.IsMainImage)?.ImagePath
-                    ?? item.ImagePath
-                    ?? "~/images/no-image.jpg";
-                }
-
-                <img src="@mainImage"
-                     class="card-img-top rounded-top"
-                     alt="@item.Name"
-                     style="height: 220px; object-fit: cover;">
-
-                <div class="card-body">
-                    <h5 class="card-title fw-bold">@item.Name</h5>
-                    <span class="badge bg-info mb-2">@item.Category</span>
-                    <p class="card-text text-muted">@item.Description</p>
-
-                    <h5 class="text-success fw-bold mt-3">
-                        @item.Price.ToString("C")
-                    </h5>
+                    <button class="btn btn-primary px-4" type="submit">🔍 Szukaj</button>
                 </div>
-
-                <div class="card-footer bg-white border-0 d-flex justify-content-between">
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">Szczegóły</a>
-                    @if (User.IsInRole("Admin"))
-                    {
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">Edytuj</a>
-                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">Usuń</a>
-                    }
-                </div>
-
             </div>
         </div>
+    </form>
+
+    <!-- Dodawanie nowego dania -->
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="text-center mb-4">
+            <a asp-action="Create" class="btn btn-success px-4 py-2 shadow-sm">
+                + Dodaj nowe danie
+            </a>
+        </div>
     }
+
+    <!-- Kategorie -->
+    <div class="d-flex justify-content-center mb-4 flex-wrap gap-2">
+        <a asp-action="Index" class="btn btn-outline-primary px-3">Wszystkie</a>
+        <a asp-action="Index" asp-route-category="1" class="btn btn-outline-warning px-3">Śniadania</a>
+        <a asp-action="Index" asp-route-category="2" class="btn btn-outline-success px-3">Obiady</a>
+        <a asp-action="Index" asp-route-category="3" class="btn btn-outline-primary px-3">Kolacje</a>
+    </div>
+
+    <!-- Lista dań -->
+    <div class="row g-4">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 rounded-4 dish-card">
+
+                    @{
+                        var mainImage = item.DishImages?.FirstOrDefault(di => di.IsMainImage)?.ImagePath
+                        ?? item.ImagePath
+                        ?? "~/images/no-image.jpg";
+                    }
+
+                    <img src="@mainImage"
+                         class="card-img-top rounded-top dish-img"
+                         alt="@item.Name">
+
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">@item.Name</h5>
+
+                        <!-- Kolor kategorii zgodny z ENUM -->
+                        <span class="badge mb-2 px-3 py-2 fs-6 @GetCategoryBadgeClass(item.Category)">
+                            @item.Category
+                        </span>
+
+                        <p class="card-text text-muted">
+                            @item.Description
+                        </p>
+
+                        <h4 class="text-success fw-bold mt-3">
+                            @item.Price.ToString("C")
+                        </h4>
+                    </div>
+
+                    <div class="card-footer bg-white border-0 d-flex justify-content-between">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">
+                            Szczegóły
+                        </a>
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <div class="d-flex gap-2">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">Edytuj</a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">Usuń</a>
+                            </div>
+                        }
+                    </div>
+
+                </div>
+            </div>
+        }
+    </div>
 </div>
 
 <style>
     .dish-card {
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
-        border-radius: 12px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
         .dish-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            transform: translateY(-6px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
         }
+
+    .dish-img {
+        height: 230px;
+        object-fit: cover;
+    }
 </style>
